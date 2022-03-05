@@ -1,167 +1,60 @@
-from tkinter import Button, Tk, filedialog
+from tkinter import W, Button, Tk, filedialog
 from xml.dom import minidom
-import xml.etree.ElementTree as ET
-from Nodo import Nodo
-import graphviz
-class Lista:
+from graphviz import Digraph
+
+class node:
+    def __init__(self, data = None, siguiente = None):
+        self.data = data 
+        self.siguiente = siguiente
+
+class Lista: 
     def __init__(self):
         self.root = None
 
-    def insertar_lista_vacia(self, dato):
-        if self.root is None:
-            nuevoNodo = Nodo(dato)
-            self.root = nuevoNodo
-        else:
-            print("La lista no esta vacia")
-    
-    def insertar_inicio(self, dato):
+    def insertar_inicio(self, data):
+        self.root = node(data=data, siguiente=self.root) 
 
-        if self.root is None:
-            self.insertar_lista_vacia(dato)
-        else:
-            nuevoNodo = Nodo(dato)
-            nuevoNodo.siguiente = self.root
-            self.root.anterior = nuevoNodo
-            self.root = nuevoNodo
-    
-    def insertar_final(self, dato):
+    def insertar_fin(self, midato): 
 
-        if self.root is None:
-            nuevoNodo = Nodo(dato)
-            self.root = nuevoNodo
-            return
+        if self.root is None: 
+            self.root = node(data=midato) 
+            return 
+        auxRoot = self.root
+        while auxRoot.siguiente: 
+            auxRoot = auxRoot.siguiente
+        auxRoot.siguiente = node(data=midato)
+    
+    def imprimir_lista( self ):
+        nodeAux = self.root 
+        while nodeAux != None:
+            print(nodeAux.data)
+            nodeAux = nodeAux.siguiente
+
+    def extraer_dato(self, x):
+        auxRoot = self.root
+        for i in range(0,x):
+            auxRoot = auxRoot.siguiente
+        return auxRoot.data
+
+    def __str__(self):
+        Cadena = "["
+        auxRoot = self.root
+        for i in range(self.cantidad_de_datos()):
+            Cadena += str(auxRoot.data)
+            if i != self.cantidad_de_datos()-1:
+                    Cadena += str(", ")
+            auxRoot = auxRoot.siguiente
+        Cadena +="]"
+        return Cadena
+
+    def cantidad_de_datos(self):
+        nodeAux = self.root 
+        contador=0
+        while nodeAux != None:
+            contador = contador+1
+            nodeAux = nodeAux.siguiente
+        return contador
         
-        apuntador = self.root
-
-        while apuntador.siguiente is not None:
-            apuntador = apuntador.siguiente
-
-        nuevoNodo = Nodo(dato)
-        apuntador.siguiente = nuevoNodo
-        nuevoNodo.anterior = apuntador
-    
-    def insertar_despues_elemento(self, x, dato):
-        if self.root is None:
-            print("La lista esta vacia")
-        else:
-            apuntador = self.root
-            while apuntador is not None:
-
-                if apuntador.elemento == x:
-                    break
-                apuntador = apuntador.siguiente
-            
-            if apuntador is None:
-                print("El elemento no se encuentra en la lista")
-            else:
-                nuevoNodo = Nodo(dato)
-                nuevoNodo.anterior = apuntador
-                nuevoNodo.siguiente = apuntador.siguiente
-                if apuntador.siguiente is not None:
-                    apuntador.siguiente.anterior = nuevoNodo
-                apuntador.siguiente = nuevoNodo
-    
-    def insertar_antes_elemento(self, x, dato):
-        if self.root is None:
-            print("La lista esta vacia")
-        else:
-            apuntador = self.root
-            while apuntador is not None:
-                if apuntador.elemento == x:
-                    break
-                apuntador = apuntador.siguiente
-            
-            if apuntador is None:
-                print("Elemento no se encuentra en la lista")
-            else:
-                nuevoNodo = Nodo(dato)
-                nuevoNodo.siguiente = apuntador
-                nuevoNodo.anterior = apuntador.anterior
-
-                if apuntador.anterior is not None:
-                    apuntador.anterior.siguiente = nuevoNodo
-                apuntador.anterior = nuevoNodo
-
-    def imprimir_listaD(self):
-        if self.root is None:
-            print("La lista esta vacia")
-            return
-        else:
-            apuntador = self.root
-            while apuntador is not None:
-                print(apuntador.elemento, " ")
-                apuntador = apuntador.siguiente
-
-    def lista_vacia(self):
-        if self.root is None:
-            return True
-        else:
-            return False
-    
-    def contar_elementos(self):
-        apuntador = self.root
-        cuenta = 0
-
-        while apuntador is not None:
-            cuenta = cuenta + 1
-            apuntador = apuntador.siguiente
-        return cuenta
-    
-    def eliminar_inicio(self):
-        if self.root is None:
-            print("La lista no contiene Nodos para eliminar")
-            return
-        
-        if self.root.siguiente is None:
-            self.root = None
-
-        self.root = self.root.siguiente
-        self.root.anterior = None
-    
-    def eliminar_final(self):
-        if self.root is None:
-            print("La lista no contiene Nodos para eliminar")
-            return
-        
-        if self.root.siguiente is None:
-            self.root = None
-            return
-
-        apuntador = self.root
-        while apuntador.siguiente is not None:
-            apuntador = apuntador.siguiente
-        apuntador.anterior.siguiente = None
-    
-    def eliminar_elemento(self, x):
-        if self.root is None:
-            print("La lista esta vacia")
-            return
-        
-        if self.root.siguiente is None:
-            if self.root.elemento == x:
-                self.root = None
-            else:
-                print("Elemento no encontrado")
-        
-        if self.root.elemento == x:
-            self.eliminar_inicio()
-            return
-        
-        apuntador = self.root
-        while apuntador.siguiente is not None:
-            if apuntador.elemento == x:
-                break
-            apuntador = apuntador.siguiente
-        
-        if apuntador.siguiente is not None:
-            apuntador.anterior.siguiente = apuntador.siguiente
-            apuntador.siguiente.anterior = apuntador.anterior
-        else:
-            if apuntador.elemento == x:
-                self.eliminar_final()
-            else:
-                return print("Elemento no encontrado")
-                
 class main:
     def menu(self):
         print("****Seleccione una opcion****\n1.Cargar Archivo\n2.Mostrar Patron\n3.Cambiar Patron\n4.Mostrar pisos cargados\n5.Salir")
@@ -179,9 +72,12 @@ class main:
             else: 
                 print('Archivo no encontrado')
         if op == '2':
-            print(self.archivo)
+            patronesL.imprimir_listaD()
+            patronesLC.imprimir_listaD()
+            exit()
+
         if op == '3':
-            M.optimizacion()
+            M.graficar()
             M.menu
         if op == '5':
             exit()
@@ -189,59 +85,61 @@ class main:
     def leerArchivo(self):
         a = self.archivo
         pisos = a.getElementsByTagName('piso')
-        patrones = a.getElementsByTagName('patron')
+        patrones = a.getElementsByTagName('patrones')
         self.R = a.getElementsByTagName('R')
         self.C = a.getElementsByTagName('C')
         self.F = a.getElementsByTagName('F')
         self.S = a.getElementsByTagName('S')
-        
+
         for elem in pisos:
             nombrePisos = elem.getAttribute('nombre')
-            pisosL.insertar_final(nombrePisos)
-
-        for elem in patrones:
-            codigoPatrones = elem.getAttribute('codigo')
-            patronesLC.insertar_final(codigoPatrones)
-        for elem in patrones:
-            patron = elem.firstChild.data
-            patronesL.insertar_final(patron)
+            pisosLN.insertar_final(nombrePisos)
+        for elem in pisos:
+            for elem in patrones:
+                codigoPatrones = elem.getAttribute('codigo')
+                patronesLC.insertar_final(codigoPatrones)
+            for elem in patrones:
+                patron = elem.firstChild.data
+                patronesL.insertar_final(patron)
+                print()
+            pisosLP.insertar_final(patronesL.root.elemento)
+            pisosLPC.insertar_final(patronesLC.root.elemento)
+        pisosLP.imprimir_listaD()
 
     def optimizacion(self):
         x = patronesL.extraer_dato(1)
         print(x)
     
-    def graficar():
-        g = graphviz.Graph('G', filename='g_c_n.gv')
-        g.attr(bgcolor='purple:pink', label='Piso01', fontcolor='white')
+    def graficar(self):
+        cells = ''
+        rows = ''
+        contador = 0
+        for i in range(0,int(self.R)):
 
-        with g.subgraph(name='cluster1') as c:
-            c.attr(fillcolor='blue:cyan', label='', fontcolor='white',
-                style='filled', gradientangle='270')
-            c.attr('node', shape='box', fillcolor='Black',
-                style='filled')
-            c.node('1')
-            c.attr('node', shape='box', fillcolor='white',
-                style='filled')
-            c.node('2')
-            c.node('5t')
-            c.node('22')
-            c.node('9')
-            c.node('8')
-            c.node('7')
-            c.node('6')
+            while contador < int(self.C):
+                if pisosLP.root.elemento()=='w' or pisosLP.root.elemento()=='W':
+                    cells = cells + '<TD BGCOLOR="WHITE">       </TD>'
+                    pisosLP.eliminar_inicio()
+                    contador = contador+1
+                elif pisosLP.root.elemento()=='b' or pisosLP.root.elemento()=='B':
+                    cells = cells + '<TD BGCOLOR="WHITE">       </TD>'
+                    contador = contador+1
+                    pisosLP.eliminar_inicio()
+                else:
+                    contador = contador 
+                    pisosLP.eliminar_inicio()
+            rows = rows + '<TR>' + cells +'</TR>'
+            i = i
+            print(rows)
 
-        with g.subgraph(name='cluster2') as d:
-            d.attr(fillcolor='blue:cyan', label='', fontcolor='white',
-                style='filled', gradientangle='270')
-            d.attr('node', shape='box', fillcolor='Black',
-                style='filled')
-            d.node('3')
-            d.attr('node', shape='box', fillcolor='white',
-                style='filled')
-            d.node('4')
-        g.view()
+        h = Digraph('g', filename='btree.gv',
+                     node_attr={'shape': 'record', 'height': '.1'})
+        
 
-pisosL = Lista()
+        
+pisosLPC= Lista()
+pisosLP = Lista()
+pisosLN = Lista()
 patronesLC = Lista()
 patronesL = Lista()
 M = main()
