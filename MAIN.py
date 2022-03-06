@@ -1,6 +1,6 @@
 from tkinter import W, Button, Tk, filedialog
 from xml.dom import minidom
-from graphviz import Digraph
+import GrafPiso
 
 class node:
     def __init__(self, data = None, siguiente = None):
@@ -72,12 +72,11 @@ class main:
             else: 
                 print('Archivo no encontrado')
         if op == '2':
-            patronesL.imprimir_listaD()
-            patronesLC.imprimir_listaD()
-            exit()
-
+            return
         if op == '3':
-            M.graficar()
+            x = int(input('ingrese el piso a graficar'))
+            y = int(input('ingrese el patron a graficar'))
+            M.graficar_piso(x, y)
             M.menu
         if op == '5':
             exit()
@@ -86,57 +85,69 @@ class main:
         a = self.archivo
         pisos = a.getElementsByTagName('piso')
         patrones = a.getElementsByTagName('patrones')
-        self.R = a.getElementsByTagName('R')
-        self.C = a.getElementsByTagName('C')
-        self.F = a.getElementsByTagName('F')
-        self.S = a.getElementsByTagName('S')
-
+        R = a.getElementsByTagName('R')
+        C = a.getElementsByTagName('C')
+        F = a.getElementsByTagName('F')
+        S = a.getElementsByTagName('S')
         for elem in pisos:
             nombrePisos = elem.getAttribute('nombre')
-            pisosLN.insertar_final(nombrePisos)
-        for elem in pisos:
-            for elem in patrones:
-                codigoPatrones = elem.getAttribute('codigo')
-                patronesLC.insertar_final(codigoPatrones)
-            for elem in patrones:
-                patron = elem.firstChild.data
-                patronesL.insertar_final(patron)
-                print()
-            pisosLP.insertar_final(patronesL.root.elemento)
-            pisosLPC.insertar_final(patronesLC.root.elemento)
-        pisosLP.imprimir_listaD()
+            pisosLN.insertar_fin(nombrePisos)
+        for elem in R:
+            RData= elem.firstChild.data
+            RL.insertar_fin(int(RData))
+        for elem in C:
+            CData= elem.firstChild.data
+            CL.insertar_fin(int(CData))
+        for elem in F:
+            FData= elem.firstChild.data
+            FL.insertar_fin(int(FData))
+        for elem in S:
+            SData= elem.firstChild.data
+            SL.insertar_fin(int(SData))
+        for elem in patrones:
+            patron = elem.getElementsByTagName('patron')
+            k = Lista()
+            j = Lista()
+            for data in patron:
+                patronC = data.getAttribute('codigo')
+                patronData = data.firstChild.data
+                patronData = patronData.replace("\n", "")
+                patronData = patronData.replace(" ", "")
+                k.insertar_fin(patronC)
+                j.insertar_fin(patronData)
+            pisosLP.insertar_fin(j)
+            pisosLPC.insertar_fin(k)
+        print(pisosLN, pisosLPC, pisosLP)
 
     def optimizacion(self):
         x = patronesL.extraer_dato(1)
         print(x)
     
-    def graficar(self):
+    def graficar_piso(self, x, y):
         cells = ''
         rows = ''
         contador = 0
-        for i in range(0,int(self.R)):
-
-            while contador < int(self.C):
-                if pisosLP.root.elemento()=='w' or pisosLP.root.elemento()=='W':
-                    cells = cells + '<TD BGCOLOR="WHITE">       </TD>'
-                    pisosLP.eliminar_inicio()
-                    contador = contador+1
-                elif pisosLP.root.elemento()=='b' or pisosLP.root.elemento()=='B':
-                    cells = cells + '<TD BGCOLOR="WHITE">       </TD>'
-                    contador = contador+1
-                    pisosLP.eliminar_inicio()
-                else:
-                    contador = contador 
-                    pisosLP.eliminar_inicio()
-            rows = rows + '<TR>' + cells +'</TR>'
-            i = i
-            print(rows)
-
-        h = Digraph('g', filename='btree.gv',
-                     node_attr={'shape': 'record', 'height': '.1'})
+        celdaB='''<TD BGCOLOR="WHITE">       </TD>'''
+        celdaN='''<TD BGCOLOR="BLACK">       </TD>'''
+        nombre = pisosLPC.extraer_dato(x).extraer_dato(y)
+        for letra in pisosLP.extraer_dato(x).extraer_dato(y):
+            if letra =='w' or letra=='W':
+                cells = cells + celdaB
+                contador= contador + 1
+            elif letra =='b' or letra=='B':
+                cells = cells + celdaN
+                contador = contador + 1
+            if contador == CL.extraer_dato(x):
+                rows = rows + '''<TR>''' + cells +'''</TR>'''
+                cells = ''
+                contador = 0
+        GrafPiso.graficar.grafica(rows, nombre)
+        M.menu()
         
-
-        
+RL = Lista()
+CL = Lista()
+SL = Lista()
+FL = Lista()
 pisosLPC= Lista()
 pisosLP = Lista()
 pisosLN = Lista()
