@@ -1,5 +1,4 @@
-from tkinter import W, Button, Pack, Tk, filedialog
-from typing import List
+from tkinter import W, Button, Tk, filedialog
 from xml.dom import minidom
 import GrafPiso
 
