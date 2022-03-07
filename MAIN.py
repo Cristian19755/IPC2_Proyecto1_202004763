@@ -1,4 +1,3 @@
-from re import X
 from tkinter import W, Button, Pack, Tk, filedialog
 from typing import List
 from xml.dom import minidom
